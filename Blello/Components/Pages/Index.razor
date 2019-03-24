@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Blello.Model
 <!-- Masthead -->
 <header class="masthead">
 
@@ -15,7 +16,7 @@
 
     <div class="logo">
 
-        <h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Trello</h1>
+        <h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Blello</h1>
 
     </div>
 
@@ -72,20 +73,10 @@
         <h3 class="list-title">Tasks to Do</h3>
 
         <ul class="list-items">
-            <li>Complete mock-up for client website</li>
-            <li>Email mock-up to client for feedback</li>
-            <li>Update personal website header background image</li>
-            <li>Update personal website heading fonts</li>
-            <li>Add google map to personal website</li>
-            <li>Begin draft of CSS Grid article</li>
-            <li>Read new CSS-Tricks articles</li>
-            <li>Read new Smashing Magazine articles</li>
-            <li>Read other bookmarked articles</li>
-            <li>Look through portfolios to gather inspiration</li>
-            <li>Create something cool for CodePen</li>
-            <li>Post latest CodePen work on Twitter</li>
-            <li>Listen to new Syntax.fm episode</li>
-            <li>Listen to new CodePen Radio episode</li>
+            @foreach (var item in boardItems)
+            {
+            <Draggable DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@DropItem ActiveClass="droptarget"><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
+            }
         </ul>
 
         <button class="add-card-btn btn">Add a card</button>
@@ -310,3 +301,55 @@
 
 </section>
 <!-- End of lists container -->
+
+@functions
+{
+    void OnDragStart(UIDragEventArgs args, BoardItem Data)
+    {
+        Console.WriteLine($"Start {Data.Content} ");
+        DragItem = Data;
+        StateHasChanged();
+    }
+
+    void OnDragEnd(UIDragEventArgs args, BoardItem Data)
+    {
+        Console.WriteLine($"End {Data.Content}");
+        StateHasChanged();
+    }
+
+    void DropItem(UIDragEventArgs args, object Data)
+    {
+        BoardItem boardItem = Data as BoardItem;
+        Console.WriteLine($"Drop {boardItem.Content}");
+        if (args.ShiftKey)
+        {
+            DragItem = new BoardItem() { BoardId = DragItem.BoardId, Content = $"{DragItem.Content} (COPY)" };
+        }
+        if (boardItem.Equals(DragItem))
+        {
+            return;
+        }
+        boardItems.Remove(DragItem);
+        boardItems.Insert(boardItems.IndexOf(boardItem), DragItem);
+        StateHasChanged();
+    }
+
+    BoardItem DragItem;
+    List<BoardItem> boardItems = new List<BoardItem>()
+    {
+        new BoardItem() { BoardId=1,Content="Complete mock-up for client website" },
+        new BoardItem() { BoardId=1,Content="Email mock-up to client for feedback" },
+        new BoardItem() { BoardId=1,Content="Update personal website header background image" },
+        new BoardItem() { BoardId=1,Content="Update personal website heading fonts" },
+        new BoardItem() { BoardId=1,Content="Add google map to personal website" },
+        new BoardItem() { BoardId=1,Content="Begin draft of CSS Grid article" },
+        new BoardItem() { BoardId=1,Content="Read new CSS-Tricks articles" },
+        new BoardItem() { BoardId=1,Content="Read new Smashing Magazine articles" },
+        new BoardItem() { BoardId=1,Content="Read other bookmarked articles" },
+        new BoardItem() { BoardId=1,Content="Look through portfolios to gather inspiration" },
+        new BoardItem() { BoardId=1,Content="Create something cool for CodePen" },
+        new BoardItem() { BoardId=1,Content="Post latest CodePen work on Twitter" },
+        new BoardItem() { BoardId=1,Content="Listen to new Syntax.fm episode" },
+        new BoardItem() { BoardId=1,Content="Listen to new CodePen Radio episode" },
+    };
+}
