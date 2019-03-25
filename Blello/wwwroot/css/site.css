@@ -272,6 +272,7 @@ app {
         margin-bottom: 0.6rem;
         word-wrap: break-word;
         cursor: pointer;
+        height: 3.6em;
     }
 
         .list-items li:last-of-type {
@@ -388,11 +389,8 @@ Remove or comment-out the code block below to see how the browser will fall-back
         }
 }
 
-.ping {
-    -webkit-animation-name: ping; /* Safari 4.0 - 8.0 */
-    -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
-    animation-name: ping;
-    animation-duration: 1s;
+.drag-item > * > li {
+    background-color: #4c94be;
 }
 
 .droptarget > li {

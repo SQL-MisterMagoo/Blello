@@ -9,17 +9,6 @@ namespace Blello.Components.DragAndDrop
 {
     public class DropZone<TItem> : ComponentBase
     {
-        //@typeparam TItem
-        //<drop-outer class=@OuterClassList
-        //            ondragleave=@MyDragLeave
-        //            ondrop=@MyDragDrop
-        //            ondragenter=@MyDragEnter
-        //            ondragover="@DragOverJS"
-        //            ondragleave="@DragLeaveJS"
-        //            ondrop="@DragDropJS">
-        //        @DropContent(DataItem)
-        //</drop-outer>
-        //@functions
         /// <summary>
         /// Place your own markup / razor syntax in here
         /// </summary>
@@ -33,9 +22,9 @@ namespace Blello.Components.DragAndDrop
         ///</summary>
         [Parameter] protected string DropType { get; set; } = "move";
         /// <summary>
-        /// CSS class to use on the dropzone - default is "border border-normal"
+        /// CSS class to use on the dropzone
         ///</summary>
-        [Parameter] protected string DropZoneClass { get; set; } = "border border-normal";
+        [Parameter] protected string DropZoneClass { get; set; } 
         /// <summary>
         /// CSS class to use when this is the active dropzone
         ///</summary>
@@ -59,8 +48,6 @@ namespace Blello.Components.DragAndDrop
             .Build();
 
         string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}'; return false;";
-        string DragDropJS => ""; //$"if (event.stopPropagation) {{ event.stopPropagation(); }}; return false;";
-        string DragLeaveJS => "";// $"if (event.stopPropagation) {{ event.stopPropagation(); }}; return false;";
 
         void MyDragEnter(UIDragEventArgs args)
         {
@@ -86,10 +73,11 @@ namespace Blello.Components.DragAndDrop
         {
             base.BuildRenderTree(builder);
             int c = 0;
-            builder.OpenElement(c++, "drop-outer");
-            builder.AddAttribute(c++, "class", OuterClassList);
-            builder.AddAttribute(c++, "ondragleave", DragLeaveJS);
-            builder.AddAttribute(c++, "ondrop", DragDropJS);
+            builder.OpenElement(c++, "drop-zone");
+            if (!string.IsNullOrWhiteSpace(OuterClassList))
+            {
+                builder.AddAttribute(c++, "class", OuterClassList);
+            }
             builder.AddAttribute(c++, "ondragover", DragOverJS);
             builder.AddAttribute(c++, "ondragleave", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragLeave));
             builder.AddAttribute(c++, "ondrop", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragDrop));

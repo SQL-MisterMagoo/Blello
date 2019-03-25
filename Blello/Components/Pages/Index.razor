@@ -73,9 +73,9 @@
         <h3 class="list-title">Tasks to Do</h3>
 
         <ul class="list-items">
-            @foreach (var item in boardItems)
+            @foreach (var item in boardItems.Where(b => b.BoardId == 1))
             {
-                <Draggable ID="@item.ItemID" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" IsDropTarget=@(dragctx.Equals(TargetItem)) OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave ActiveClass="droptarget"><DropContent Context="dropctx"><li class="@(dropctx.Equals(DragItem) ? "ping" : "" )">@dropctx.Content @dropctx.ItemID </li></DropContent></DropZone></DragContent></Draggable>
+                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
             }
         </ul>
 
@@ -88,9 +88,10 @@
         <h3 class="list-title">Completed Tasks</h3>
 
         <ul class="list-items">
-            <li>Clear email inbox</li>
-            <li>Finalise requirements for client web design</li>
-            <li>Begin work on mock-up for client website</li>
+            @foreach (var item in boardItems.Where(b => b.BoardId == 2))
+            {
+                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
+            }
         </ul>
 
         <button class="add-card-btn btn">Add a card</button>
@@ -308,14 +309,31 @@
     {
         Console.WriteLine($"Start {Data.Content} ");
         DragItem = Data;
+        DragIndex = boardItems.IndexOf(DragItem);
         StateHasChanged();
     }
 
     void OnDragEnter(UIDragEventArgs args, object Data)
     {
-        BoardItem boardItem = Data as BoardItem;
-        Console.WriteLine($"Start {boardItem.Content} ");
-        TargetItem = boardItem;
+        var item = Data as BoardItem;
+        Console.WriteLine($"Enter {item.Content} ");
+        if (item.Equals(DragItem))
+        {
+            return;
+        }
+        TargetItem = item;
+        int dragIndex = boardItems.IndexOf(DragItem);
+        int targetIndex = boardItems.IndexOf(TargetItem);
+        boardItems.Remove(DragItem);
+        if (TargetItem.BoardId == DragItem.BoardId)
+        {
+            boardItems.Insert(targetIndex, DragItem);
+        }
+        else
+        {
+            boardItems.Insert(targetIndex-1, DragItem);
+        }
+        DragItem.BoardId = TargetItem.BoardId;
         StateHasChanged();
     }
 
@@ -331,7 +349,6 @@
     {
         BoardItem boardItem = Data as BoardItem;
         Console.WriteLine($"Leave {boardItem.Content} ");
-        TargetItem = null;
         StateHasChanged();
     }
 
@@ -349,10 +366,11 @@
         }
         boardItems.Remove(DragItem);
         boardItems.Insert(boardItems.IndexOf(boardItem), DragItem);
-        TargetItem = null;
+        DragItem.BoardId = boardItem.BoardId;
         StateHasChanged();
     }
 
+    int DragIndex;
     BoardItem DragItem;
     BoardItem TargetItem;
     List<BoardItem> boardItems;
@@ -360,7 +378,7 @@
     {
         base.OnInit();
         boardItems = new List<BoardItem>()
-        {
+{
         new BoardItem() { BoardId=1,Content="Complete mock-up for client website" },
         new BoardItem() { BoardId=1,Content="Email mock-up to client for feedback" },
         new BoardItem() { BoardId=1,Content="Update personal website header background image" },
@@ -375,7 +393,10 @@
         new BoardItem() { BoardId=1,Content="Post latest CodePen work on Twitter" },
         new BoardItem() { BoardId=1,Content="Listen to new Syntax.fm episode" },
         new BoardItem() { BoardId=1,Content="Listen to new CodePen Radio episode" },
-        };
+        new BoardItem() { BoardId=2,Content="Clear email inbox" },
+        new BoardItem() { BoardId=2,Content="Finalise requirements for client web design" },
+        new BoardItem() { BoardId=2,Content="Begin work on mock-up for client website" },
+       };
 
     }
     //

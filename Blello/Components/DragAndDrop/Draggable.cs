@@ -73,9 +73,15 @@ namespace Blello.Components.DragAndDrop
             int c = 0;
             builder.OpenElement(c++, "drag-item");
             builder.AddAttribute(c++, "id", ID);
-            builder.AddAttribute(c++, "class", ClassList);
+            if (!string.IsNullOrWhiteSpace(ClassList))
+            {
+                builder.AddAttribute(c++, "class", ClassList);
+            }
             builder.AddAttribute(c++, "draggable", "true");
-            builder.AddAttribute(c++, "style", DraggableStyle);
+            if (!string.IsNullOrWhiteSpace(DraggableStyle))
+            {
+                builder.AddAttribute(c++, "style", DraggableStyle);
+            }
             builder.AddAttribute(c++, "ondragstart", DragStartJS);
             builder.AddAttribute(c++, "ondragend", DragEndJS);
             builder.AddAttribute(c++, "ondragstart", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragStart));
