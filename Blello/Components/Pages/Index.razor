@@ -75,7 +75,7 @@
         <ul class="list-items">
             @foreach (var item in boardItems)
             {
-            <Draggable DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@DropItem ActiveClass="droptarget"><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
+                <Draggable ID="@item.ItemID" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" IsDropTarget=@(dragctx.Equals(TargetItem)) OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave ActiveClass="droptarget"><DropContent Context="dropctx"><li class="@(dropctx.Equals(DragItem) ? "ping" : "" )">@dropctx.Content @dropctx.ItemID </li></DropContent></DropZone></DragContent></Draggable>
             }
         </ul>
 
@@ -311,13 +311,31 @@
         StateHasChanged();
     }
 
-    void OnDragEnd(UIDragEventArgs args, BoardItem Data)
+    void OnDragEnter(UIDragEventArgs args, object Data)
     {
-        Console.WriteLine($"End {Data.Content}");
+        BoardItem boardItem = Data as BoardItem;
+        Console.WriteLine($"Start {boardItem.Content} ");
+        TargetItem = boardItem;
         StateHasChanged();
     }
 
-    void DropItem(UIDragEventArgs args, object Data)
+    void OnDragEnd(UIDragEventArgs args, object Data)
+    {
+        BoardItem boardItem = Data as BoardItem;
+        Console.WriteLine($"End {boardItem.Content} ");
+        DragItem = null;
+        StateHasChanged();
+    }
+
+    void OnDragLeave(UIDragEventArgs args, object Data)
+    {
+        BoardItem boardItem = Data as BoardItem;
+        Console.WriteLine($"Leave {boardItem.Content} ");
+        TargetItem = null;
+        StateHasChanged();
+    }
+
+    void OnDropItem(UIDragEventArgs args, object Data)
     {
         BoardItem boardItem = Data as BoardItem;
         Console.WriteLine($"Drop {boardItem.Content}");
@@ -331,12 +349,18 @@
         }
         boardItems.Remove(DragItem);
         boardItems.Insert(boardItems.IndexOf(boardItem), DragItem);
+        TargetItem = null;
         StateHasChanged();
     }
 
     BoardItem DragItem;
-    List<BoardItem> boardItems = new List<BoardItem>()
+    BoardItem TargetItem;
+    List<BoardItem> boardItems;
+    protected override void OnInit()
     {
+        base.OnInit();
+        boardItems = new List<BoardItem>()
+        {
         new BoardItem() { BoardId=1,Content="Complete mock-up for client website" },
         new BoardItem() { BoardId=1,Content="Email mock-up to client for feedback" },
         new BoardItem() { BoardId=1,Content="Update personal website header background image" },
@@ -351,5 +375,8 @@
         new BoardItem() { BoardId=1,Content="Post latest CodePen work on Twitter" },
         new BoardItem() { BoardId=1,Content="Listen to new Syntax.fm episode" },
         new BoardItem() { BoardId=1,Content="Listen to new CodePen Radio episode" },
-    };
+        };
+
+    }
+    //
 }

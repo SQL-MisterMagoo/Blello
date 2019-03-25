@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Blello.Model
 {
@@ -9,5 +6,11 @@ namespace Blello.Model
     {
         public int BoardId { get; set; }
         public string Content { get; set; }
+        public string ItemID { get; set; }
+
+        public BoardItem()
+        {
+            ItemID = Math.Abs(Guid.NewGuid().GetHashCode()).ToString();
+        }
     }
 }

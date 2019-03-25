@@ -9,7 +9,7 @@ namespace Blello.Components.DragAndDrop
         /// <summary>
         /// html element id - defaults to pseudo random to prevent diff problems
         /// </summary>
-        [Parameter] protected string ID { get; set; } = Guid.NewGuid().GetHashCode().ToString();
+        [Parameter] protected string ID { get; set; } = Math.Abs(Guid.NewGuid().GetHashCode()).ToString();
         /// <summary>
         /// place your markup here
         /// </summary>
