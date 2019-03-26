@@ -75,7 +75,7 @@
         <ul class="list-items">
             @foreach (var item in boardItems.Where(b => b.BoardId == 1))
             {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
+                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
             }
         </ul>
 
@@ -90,7 +90,7 @@
         <ul class="list-items">
             @foreach (var item in boardItems.Where(b => b.BoardId == 2))
             {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd><DragContent Context="dragctx"><DropZone DataItem="dragctx" Debug="true" OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DropContent Context="dropctx"><li>@dropctx.Content</li></DropContent></DropZone></DragContent></Draggable>
+                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
             }
         </ul>
 
@@ -313,15 +313,14 @@
         StateHasChanged();
     }
 
-    void OnDragEnter(UIDragEventArgs args, object Data)
+    void OnDragEnter(UIDragEventArgs args, BoardItem Data)
     {
-        var item = Data as BoardItem;
-        Console.WriteLine($"Enter {item.Content} ");
-        if (item.Equals(DragItem))
+        Console.WriteLine($"Enter {Data.Content} ");
+        if (Data.Equals(DragItem))
         {
             return;
         }
-        TargetItem = item;
+        TargetItem = Data;
         int dragIndex = boardItems.IndexOf(DragItem);
         int targetIndex = boardItems.IndexOf(TargetItem);
         boardItems.Remove(DragItem);
@@ -337,36 +336,33 @@
         StateHasChanged();
     }
 
-    void OnDragEnd(UIDragEventArgs args, object Data)
+    void OnDragEnd(UIDragEventArgs args, BoardItem Data)
     {
-        BoardItem boardItem = Data as BoardItem;
-        Console.WriteLine($"End {boardItem.Content} ");
+        Console.WriteLine($"End {Data.Content} ");
         DragItem = null;
         StateHasChanged();
     }
 
-    void OnDragLeave(UIDragEventArgs args, object Data)
+    void OnDragLeave(UIDragEventArgs args, BoardItem Data)
     {
-        BoardItem boardItem = Data as BoardItem;
-        Console.WriteLine($"Leave {boardItem.Content} ");
+        Console.WriteLine($"Leave {Data.Content} ");
         StateHasChanged();
     }
 
-    void OnDropItem(UIDragEventArgs args, object Data)
+    void OnDropItem(UIDragEventArgs args, BoardItem Data)
     {
-        BoardItem boardItem = Data as BoardItem;
-        Console.WriteLine($"Drop {boardItem.Content}");
+        Console.WriteLine($"Drop {Data.Content}");
         if (args.ShiftKey)
         {
             DragItem = new BoardItem() { BoardId = DragItem.BoardId, Content = $"{DragItem.Content} (COPY)" };
         }
-        if (boardItem.Equals(DragItem))
+        if (Data.Equals(DragItem))
         {
             return;
         }
         boardItems.Remove(DragItem);
-        boardItems.Insert(boardItems.IndexOf(boardItem), DragItem);
-        DragItem.BoardId = boardItem.BoardId;
+        boardItems.Insert(boardItems.IndexOf(Data), DragItem);
+        DragItem.BoardId = Data.BoardId;
         StateHasChanged();
     }
 

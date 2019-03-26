@@ -389,51 +389,10 @@ Remove or comment-out the code block below to see how the browser will fall-back
         }
 }
 
-.drag-item > * > li {
+.drag-item > li {
     background-color: #4c94be;
 }
 
 .droptarget > li {
-    border-left: 5px solid green;
-    -webkit-animation-name: ping; /* Safari 4.0 - 8.0 */
-    -webkit-animation-duration: 1s; /* Safari 4.0 - 8.0 */
-    animation-name: ping;
-    animation-duration: 1s;
-}
-
-/* Safari 4.0 - 8.0 */
-@-webkit-keyframes ping {
-    0% {
-        background-color: white;
-    }
-
-    25% {
-        background-color: moccasin;
-    }
-
-    50% {
-        background-color: moccasin;
-    }
-
-    100% {
-        background-color: white;
-    }
-}
-/* Standard syntax */
-@keyframes ping {
-    0% {
-        background-color: white;
-    }
-
-    25% {
-        background-color: moccasin;
-    }
-
-    50% {
-        background-color: moccasin;
-    }
-
-    100% {
-        background-color: white;
-    }
+    background-color: #4c94be;
 }

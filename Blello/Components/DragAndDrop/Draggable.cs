@@ -23,6 +23,10 @@ namespace Blello.Components.DragAndDrop
         /// </summary>
         [Parameter] protected string DragType { get; set; } = "move";
         /// <summary>
+        /// What type of drop to allow - default to "move"
+        ///</summary>
+        [Parameter] protected string DropType { get; set; } = "move";
+        /// <summary>
         /// CSS class for the draggable item - optional
         /// </summary>
         [Parameter] protected string DraggableClass { get; set; }
@@ -42,13 +46,26 @@ namespace Blello.Components.DragAndDrop
         /// Flag to enable console logging
         /// </summary>
         [Parameter] protected bool Debug { get; set; }
+        /// <summary>
+        /// Flag to indicate if this is the active dropzone
+        ///</summary>
+        [Parameter] protected bool IsDropTarget { get; set; }
+        /// <summary>
+        /// CSS class to use when this is the active dropzone
+        ///</summary>
+        [Parameter] protected string DropTargetClass { get; set; }
 
         [Parameter] protected Action<UIDragEventArgs, TItem> OnDragStart { get; set; }
         [Parameter] protected Action<UIDragEventArgs, TItem> OnDragEnd { get; set; }
+        [Parameter] protected Action<UIDragEventArgs, TItem> OnDragEnter { get; set; }
+        [Parameter] protected Action<UIDragEventArgs, TItem> OnDragDrop { get; set; }
+        [Parameter] protected Action<UIDragEventArgs, TItem> OnDragLeave { get; set; }
+        [Parameter] protected Action<UIDragEventArgs, TItem> OnDragOver { get; set; }
 
         string ClassList => new CssBuilder()
           .AddClass(DraggableClass, !IsDragItem)
           .AddClass(DragItemClass, IsDragItem)
+          .AddClass(DropTargetClass, IsDropTarget)
           .Build();
 
         void MyDragStart(UIDragEventArgs args)
@@ -66,6 +83,35 @@ namespace Blello.Components.DragAndDrop
         }
         string DragStartJS => "event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.id);";
         string DragEndJS => "event.stopPropagation();";
+        string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}'; return false;";
+
+        void MyDragEnter(UIDragEventArgs args)
+        {
+            if (Debug) Console.WriteLine($"DZ:{DataItem} ENTER");
+                IsDropTarget = true;
+                OnDragEnter?.Invoke(args, DataItem);
+        }
+
+        void MyDragLeave(UIDragEventArgs args)
+        {
+            if (Debug) Console.WriteLine($"DZ:{DataItem} LEAVE");
+                IsDropTarget = false;
+                OnDragLeave?.Invoke(args, DataItem);
+        }
+
+        void MyDragDrop(UIDragEventArgs args)
+        {
+            if (Debug) Console.WriteLine($"DZ:{DataItem} DROP");
+                IsDropTarget = false;
+                OnDragDrop?.Invoke(args, DataItem);
+        }
+
+        void MyDragOver(UIDragEventArgs args)
+        {
+            if (Debug) Console.WriteLine($"DO:{DataItem} DROP");
+                IsDropTarget = true;
+                OnDragOver?.Invoke(args, DataItem);
+        }
 
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
@@ -82,12 +128,18 @@ namespace Blello.Components.DragAndDrop
             {
                 builder.AddAttribute(c++, "style", DraggableStyle);
             }
+            builder.AddAttribute(c++, "ondragover", DragOverJS);
             builder.AddAttribute(c++, "ondragstart", DragStartJS);
             builder.AddAttribute(c++, "ondragend", DragEndJS);
+            builder.AddAttribute(c++, "ondragleave", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragLeave));
+            builder.AddAttribute(c++, "ondrop", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragDrop));
+            builder.AddAttribute(c++, "ondragenter", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnter));
             builder.AddAttribute(c++, "ondragstart", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragStart));
             builder.AddAttribute(c++, "ondragend", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnd));
+            builder.AddAttribute(c++, "ondragover", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragOver));
             builder.AddContent(c++, DragContent(DataItem));
             builder.CloseElement();
         }
+
     }
 }
