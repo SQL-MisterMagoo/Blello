@@ -62,15 +62,15 @@ namespace Blello.Components.DragAndDrop
         [Parameter] protected Action<UIDragEventArgs, TItem> OnDragLeave { get; set; }
         [Parameter] protected Action<UIDragEventArgs, TItem> OnDragOver { get; set; }
 
-        string ClassList => new CssBuilder()
-          .AddClass(DraggableClass, !IsDragItem)
-          .AddClass(DragItemClass, IsDragItem)
-          .AddClass(DropTargetClass, IsDropTarget)
+        string ClassList => new CssBuilder("")
+          .AddClass(DraggableClass ?? "", !IsDragItem)
+          .AddClass(DragItemClass ?? "", IsDragItem)
+          .AddClass(DropTargetClass ?? "", IsDropTarget)
           .Build();
 
         void MyDragStart(UIDragEventArgs args)
         {
-            if (Debug) Console.WriteLine($"DS: {DataItem}");
+            if (Debug) Console.WriteLine($"DR: {DataItem} START");
             args.DataTransfer.EffectAllowed = DragType;
             args.DataTransfer.Types = new string[] { "text/plain" };
             args.DataTransfer.Items = new UIDataTransferItem[] { new UIDataTransferItem() { Kind = "string", Type = "text/plain" } };
@@ -78,12 +78,12 @@ namespace Blello.Components.DragAndDrop
         }
         void MyDragEnd(UIDragEventArgs args)
         {
-            if (Debug) Console.WriteLine($"DE: {DataItem}");
+            if (Debug) Console.WriteLine($"DR: {DataItem} END");
             OnDragEnd?.Invoke(args, DataItem);
         }
-        string DragStartJS => "event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.id);";
+        string DragStartJS => $"event.dataTransfer.effectAllowed = '{DragType}'; event.dataTransfer.setData('text/plain', event.target.id);";
         string DragEndJS => "event.stopPropagation();";
-        string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}'; return false;";
+        string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}';";
 
         void MyDragEnter(UIDragEventArgs args)
         {
@@ -108,26 +108,17 @@ namespace Blello.Components.DragAndDrop
 
         void MyDragOver(UIDragEventArgs args)
         {
-            if (Debug) Console.WriteLine($"DO:{DataItem} DROP");
+            if (Debug) Console.WriteLine($"DZ:{DataItem} OVER");
                 IsDropTarget = true;
                 OnDragOver?.Invoke(args, DataItem);
         }
 
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
-            base.BuildRenderTree(builder);
             int c = 0;
             builder.OpenElement(c++, "drag-item");
             builder.AddAttribute(c++, "id", ID);
-            if (!string.IsNullOrWhiteSpace(ClassList))
-            {
-                builder.AddAttribute(c++, "class", ClassList);
-            }
             builder.AddAttribute(c++, "draggable", "true");
-            if (!string.IsNullOrWhiteSpace(DraggableStyle))
-            {
-                builder.AddAttribute(c++, "style", DraggableStyle);
-            }
             builder.AddAttribute(c++, "ondragover", DragOverJS);
             builder.AddAttribute(c++, "ondragstart", DragStartJS);
             builder.AddAttribute(c++, "ondragend", DragEndJS);
@@ -137,8 +128,17 @@ namespace Blello.Components.DragAndDrop
             builder.AddAttribute(c++, "ondragstart", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragStart));
             builder.AddAttribute(c++, "ondragend", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnd));
             builder.AddAttribute(c++, "ondragover", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragOver));
-            builder.AddContent(c++, DragContent(DataItem));
+            if (!string.IsNullOrWhiteSpace(ClassList))
+            {
+                builder.AddAttribute(c++, "class", ClassList);
+            }
+            if (!string.IsNullOrWhiteSpace(DraggableStyle))
+            {
+                builder.AddAttribute(c++, "style", DraggableStyle);
+            }
+            builder.AddContent(99, DragContent(DataItem));
             builder.CloseElement();
+            base.BuildRenderTree(builder);
         }
 
     }

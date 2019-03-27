@@ -352,17 +352,7 @@
     void OnDropItem(UIDragEventArgs args, BoardItem Data)
     {
         Console.WriteLine($"Drop {Data.Content}");
-        if (args.ShiftKey)
-        {
-            DragItem = new BoardItem() { BoardId = DragItem.BoardId, Content = $"{DragItem.Content} (COPY)" };
-        }
-        if (Data.Equals(DragItem))
-        {
-            return;
-        }
-        boardItems.Remove(DragItem);
-        boardItems.Insert(boardItems.IndexOf(Data), DragItem);
-        DragItem.BoardId = Data.BoardId;
+        DragItem = null;
         StateHasChanged();
     }
 

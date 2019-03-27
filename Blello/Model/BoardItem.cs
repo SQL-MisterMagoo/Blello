@@ -12,5 +12,10 @@ namespace Blello.Model
         {
             ItemID = Math.Abs(Guid.NewGuid().GetHashCode()).ToString();
         }
+
+        public override string ToString()
+        {
+            return Content;
+        }
     }
 }
