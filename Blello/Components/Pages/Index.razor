@@ -68,142 +68,29 @@
 <!-- Lists container -->
 <section class="lists-container">
 
-    <div class="list">
+    @for (int i = 0; i < boardTitles.Count; i++)
+    {
+        int board = i+1;
+        <div class="list">
 
-        <h3 class="list-title">Tasks to Do</h3>
+        <DropZone ActiveClass="droptarget" DataItem="board" OnDragDrop=@OnDropBoard OnDragEnter=@OnEnterBoard>
+            <DropContent>
+            <h3 class="list-title">@boardTitles[board-1]</h3>
+            </DropContent>
+        </DropZone>
 
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 1))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
+            <ul class="list-items">
+                @foreach (var item in boardItems.Where(b => b.BoardId == board))
+                {
+                    <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
+                }
+            </ul>
 
-        <button class="add-card-btn btn">Add a card</button>
+            <button class="add-card-btn btn">Add a card</button>
 
-    </div>
+        </div>
+    }
 
-    <div class="list">
-
-        <h3 class="list-title">Completed Tasks</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 2))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">Topics/Concepts to Revise</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 3))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">Topics/Concepts to Learn</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 4))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">Useful Websites for Learning</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 5))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">Web Dev YouTube Channels</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 6))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">CodePen Ideas</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 7))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">Practise Website Ideas</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 8))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <div class="list">
-
-        <h3 class="list-title">JavaScript Project Ideas</h3>
-
-        <ul class="list-items">
-            @foreach (var item in boardItems.Where(b => b.BoardId == 9))
-            {
-                <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-            }
-        </ul>
-
-        <button class="add-card-btn btn">Add a card</button>
-
-    </div>
-
-    <button class="add-list-btn btn">Add a list</button>
 
 </section>
 <!-- End of lists container -->
@@ -214,6 +101,7 @@
     {
         Console.WriteLine($"Start {Data.Content} ");
         DragItem = Data;
+        DragBoard = Data.BoardId;
         DragIndex = boardItems.IndexOf(DragItem);
         StateHasChanged();
     }
@@ -235,7 +123,7 @@
         }
         else
         {
-            boardItems.Insert(targetIndex-1, DragItem);
+            boardItems.Insert(Math.Max(0,targetIndex - 1), DragItem);
         }
         DragItem.BoardId = TargetItem.BoardId;
         StateHasChanged();
@@ -258,16 +146,42 @@
     {
         Console.WriteLine($"Drop {Data.Content}");
         DragItem = null;
+        TargetItem = null;
+        StateHasChanged();
+    }
+
+    void OnEnterBoard(UIDragEventArgs args, object Data)
+    {
+        Console.WriteLine($"Enter Board #{Data} ");
+        if (int.TryParse(Data.ToString(), out int board))
+        {
+            DragItem.BoardId = board;
+        }
+        StateHasChanged();
+    }
+
+    void OnDropBoard(UIDragEventArgs args, object Data)
+    {
+        Console.WriteLine($"Drop Board #{Data}");
+        if (int.TryParse(Data.ToString(), out int board))
+        {
+            DragItem.BoardId = board;
+        }
+        DragItem = null;
+        TargetItem = null;
         StateHasChanged();
     }
 
     int DragIndex;
+    int DragBoard;
     BoardItem DragItem;
     BoardItem TargetItem;
+    List<string> boardTitles;
     List<BoardItem> boardItems;
     protected override void OnInit()
     {
         base.OnInit();
+        boardTitles = BoardItem.SampleDataHeaders();
         boardItems = BoardItem.SampleData();
 
     }

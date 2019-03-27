@@ -19,6 +19,21 @@ namespace Blello.Model
             return Content;
         }
 
+        public static List<string> SampleDataHeaders()
+        {
+            return new List<string>()
+            {
+                "Tasks to Do",
+                "Completed Tasks",
+                "Topics/Concepts to Revise",
+                "Topics/Concepts to Learn",
+                "Useful Websites for Learning",
+                "Web Dev YouTube Channels",
+                "CodePen Ideas",
+                "Practise Website Ideas",
+                "JavaScript Project Ideas",
+            };
+        }
         public static List<BoardItem> SampleData()
         {
             return new List<BoardItem>()

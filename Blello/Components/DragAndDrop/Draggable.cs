@@ -121,13 +121,16 @@ namespace Blello.Components.DragAndDrop
             builder.AddAttribute(c++, "draggable", "true");
             builder.AddAttribute(c++, "ondragover", DragOverJS);
             builder.AddAttribute(c++, "ondragstart", DragStartJS);
-            builder.AddAttribute(c++, "ondragend", DragEndJS);
+            //builder.AddAttribute(c++, "ondragend", DragEndJS);
             builder.AddAttribute(c++, "ondragleave", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragLeave));
             builder.AddAttribute(c++, "ondrop", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragDrop));
             builder.AddAttribute(c++, "ondragenter", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnter));
             builder.AddAttribute(c++, "ondragstart", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragStart));
             builder.AddAttribute(c++, "ondragend", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnd));
-            builder.AddAttribute(c++, "ondragover", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragOver));
+            if (!(OnDragOver is null))
+            {
+                builder.AddAttribute(c++, "ondragover", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragOver));
+            }
             if (!string.IsNullOrWhiteSpace(ClassList))
             {
                 builder.AddAttribute(c++, "class", ClassList);
