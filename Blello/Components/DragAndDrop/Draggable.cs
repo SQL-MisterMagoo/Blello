@@ -82,7 +82,7 @@ namespace Blello.Components.DragAndDrop
             OnDragEnd?.Invoke(args, DataItem);
         }
         string DragStartJS => $"event.dataTransfer.effectAllowed = '{DragType}'; event.dataTransfer.setData('text/plain', event.target.id);";
-        string DragEndJS => "event.stopPropagation();";
+        string DragDropJS => "if (event.preventDefault) event.preventDefault(); if (event.stopPropagation) event.stopPropagation();";
         string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}';";
 
         void MyDragEnter(UIDragEventArgs args)
@@ -121,7 +121,7 @@ namespace Blello.Components.DragAndDrop
             builder.AddAttribute(c++, "draggable", "true");
             builder.AddAttribute(c++, "ondragover", DragOverJS);
             builder.AddAttribute(c++, "ondragstart", DragStartJS);
-            //builder.AddAttribute(c++, "ondragend", DragEndJS);
+            builder.AddAttribute(c++, "ondrop", DragDropJS);
             builder.AddAttribute(c++, "ondragleave", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragLeave));
             builder.AddAttribute(c++, "ondrop", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragDrop));
             builder.AddAttribute(c++, "ondragenter", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnter));
@@ -129,16 +129,20 @@ namespace Blello.Components.DragAndDrop
             builder.AddAttribute(c++, "ondragend", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnd));
             if (!(OnDragOver is null))
             {
+                c = 20; //Ensure the attribute always has the same sequence
                 builder.AddAttribute(c++, "ondragover", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragOver));
             }
             if (!string.IsNullOrWhiteSpace(ClassList))
             {
+                c = 30; //Ensure the attribute always has the same sequence
                 builder.AddAttribute(c++, "class", ClassList);
             }
             if (!string.IsNullOrWhiteSpace(DraggableStyle))
             {
+                c = 40; //Ensure the attribute always has the same sequence
                 builder.AddAttribute(c++, "style", DraggableStyle);
             }
+            c = 98; //Ensure the closing content always has the same sequence
             builder.AddContent(99, DragContent(DataItem));
             builder.CloseElement();
             base.BuildRenderTree(builder);

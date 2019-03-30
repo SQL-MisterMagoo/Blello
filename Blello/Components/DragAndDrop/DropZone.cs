@@ -48,6 +48,7 @@ namespace Blello.Components.DragAndDrop
             .Build();
 
         string DragOverJS => $"if (event.preventDefault) {{ event.preventDefault(); }}; event.dataTransfer.dropEffect = '{DropType}'; return false;";
+        string DragDropJS => "if (event.preventDefault) event.preventDefault(); if (event.stopPropagation) event.stopPropagation();";
 
         void MyDragEnter(UIDragEventArgs args)
         {
@@ -74,14 +75,17 @@ namespace Blello.Components.DragAndDrop
             base.BuildRenderTree(builder);
             int c = 0;
             builder.OpenElement(c++, "drop-zone");
-            if (!string.IsNullOrWhiteSpace(OuterClassList))
-            {
-                builder.AddAttribute(c++, "class", OuterClassList);
-            }
             builder.AddAttribute(c++, "ondragover", DragOverJS);
+            builder.AddAttribute(c++, "ondrop", DragDropJS);
             builder.AddAttribute(c++, "ondragleave", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragLeave));
             builder.AddAttribute(c++, "ondrop", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragDrop));
             builder.AddAttribute(c++, "ondragenter", Microsoft.AspNetCore.Components.EventCallback.Factory.Create<Microsoft.AspNetCore.Components.UIDragEventArgs>(this, MyDragEnter));
+            if (!string.IsNullOrWhiteSpace(OuterClassList))
+            {
+                c = 10; //Ensure attribute always has the same sequence
+                builder.AddAttribute(c++, "class", OuterClassList);
+            }
+            c = 98; // ensure the closing content is always in sequence
             builder.AddContent(c++, DropContent(DataItem));
             builder.CloseElement();
         }
