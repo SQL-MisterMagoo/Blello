@@ -130,9 +130,16 @@ app {
     color: #fff;
 }
 
-    .board-new-input:hover {
-        background-color: #66a4c8;
-    }
+.board-edit {
+    flex-basis: 18rem;
+    position: relative;
+    height: auto !important;
+}
+
+.board-edit-input {
+    width: 100%;
+    padding-right: 3em;
+}
 
 .new-icon {
     font-size: 1.5rem;
@@ -421,10 +428,11 @@ Remove or comment-out the code block below to see how the browser will fall-back
     background-color: #4c94be;
 }
 
-.droptarget > li {
-    background-color: #4c94be;
+.board-card:focus,.board-card:hover {
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
 }
 
-.board-card:focus,.board-card:hover {
-    border: 3px solid orange;
+.board-card.highlight {
+    font-weight:700;
+    background-color: cornflowerblue;
 }

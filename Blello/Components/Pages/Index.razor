@@ -8,7 +8,7 @@
 		<button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>Boards</button>
 
 		<div class="board-search">
-			<input type="search" class="board-search-input" aria-label="Board Search">
+			<input type="search" class="board-search-input" aria-label="Board Search" oninput="@BoardSearch" />
 			<i class="fas fa-search search-icon" aria-hidden="true"></i>
 		</div>
 
@@ -66,7 +66,7 @@
 </section>
 <!-- End of board info bar -->
 <!-- Lists container -->
-<section class="lists-container">
+<section class="lists-container" onkeypress="@SelectBoard">
 
 	@for (int i = 0; i < boardTitles.Count; i++)
 	{
@@ -82,17 +82,18 @@
 			<ul class="list-items">
 				@foreach (var item in boardItems.Where(b => b.BoardId == board))
 				{
+					bool highlight = !(string.IsNullOrWhiteSpace(SearchTerm)) && item.Content.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase);
 					@if (item.Equals(EditItem))
 					{
-						<li class="board-new">
-							<textarea id="@item.ItemID" rows="10" class="board-new-input" bind="@EditChange" aria-label="Edit Card" tabindex="0" />
+						<li class="board-edit">
+							<textarea id="@item.ItemID" rows="10" class="board-edit-input" onblur="@((e)=>EditAbort(e,item))" bind="@EditChange" aria-label="Edit Card" tabindex="0" />
 						</li>
 					}
 					else
 					{
 						<Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave>
 							<DragContent Context="dragctx">
-								<li class="board-card" tabindex="1" onclick="@((e) => EditCard(e, item))" onkeypress="@((e) => EditCard(e, item))">@dragctx.Content</li>
+								<li class="board-card @((highlight ? "highlight" : ""))" tabindex="@board" onclick="@((e) => EditCard(e, item))" onkeypress="@((e) => EditCard(e, item))">@dragctx.Content</li>
 							</DragContent>
 						</Draggable>
 					}
@@ -102,13 +103,13 @@
 			@if (NewBoardItem == board)
 			{
 				<div class="board-new">
-					<input id="newcard" type="text" class="board-new-input" bind="@NewItem" placeholder="Add a card" aria-label="New Card" tabindex="1" />
+					<input id="newcard" type="text" class="board-new-input" bind="@NewItem" placeholder="Add a card" aria-label="New Card" tabindex="@board" />
 					<i class="fas fa-plus new-icon"></i>
 				</div>
 			}
 			else
 			{
-				<button class="add-card-btn btn" onclick="@(()=>AddNewItem(board))">Add a card</button>
+				<button class="add-card-btn btn" onclick="@(()=>AddNewItem(board))" tabindex="@board">Add a card</button>
 			}
 
 		</div>
@@ -121,6 +122,26 @@
 
 @functions
 {
+		void BoardSearch(UIChangeEventArgs args)
+		{
+			SearchTerm = args.Value.ToString();
+		}
+		void SelectBoard(UIKeyboardEventArgs args)
+		{
+			if (!(EditItem is null) || !(DragItem is null))
+			{
+				return;
+			}
+			if (int.TryParse(args.Key, out int board) && board <= boardTitles.Count)
+			{
+				var item = boardItems.First(b => b.BoardId == board);
+				if (!(item is null))
+				{
+					FocusChildId = item.ItemID;
+					FocusElementId = "";
+				}
+			}
+		}
 		void EditCard(UIEventArgs args, BoardItem item)
 		{
 			switch (args)
@@ -163,6 +184,13 @@
 			}
 		}
 
+		void EditAbort(UIFocusEventArgs args, BoardItem item)
+		{
+			EditItem = null;
+			FocusChildId = item.ItemID;
+			FocusElementId = "";
+		}
+
 		void AddNewItem(int board)
 		{
 			NewBoardItem = board;
@@ -198,6 +226,8 @@
 				boardItems.Insert(Math.Max(0, targetIndex - 1), DragItem);
 			}
 			DragItem.BoardId = TargetItem.BoardId;
+			FocusChildId = DragItem.ItemID;
+			FocusElementId = "";
 			StateHasChanged();
 		}
 
@@ -249,6 +279,7 @@
 		int NewBoardItem;
 		string FocusElementId;
 		string FocusChildId;
+		string SearchTerm;
 		BoardItem EditItem;
 		BoardItem DragItem;
 		BoardItem TargetItem;
