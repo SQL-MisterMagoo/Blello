@@ -115,7 +115,9 @@ namespace Blello.Components.DragAndDrop
 
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.RenderTree.RenderTreeBuilder builder)
         {
+            base.BuildRenderTree(builder);
             int c = 0;
+
             builder.OpenElement(c++, "drag-item");
             builder.AddAttribute(c++, "id", ID);
             builder.AddAttribute(c++, "draggable", "true");
@@ -145,7 +147,6 @@ namespace Blello.Components.DragAndDrop
             c = 98; //Ensure the closing content always has the same sequence
             builder.AddContent(99, DragContent(DataItem));
             builder.CloseElement();
-            base.BuildRenderTree(builder);
         }
 
     }

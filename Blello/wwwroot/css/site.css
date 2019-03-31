@@ -115,6 +115,34 @@ app {
     color: #fff;
 }
 
+.board-new {
+    flex-basis: 18rem;
+    position: relative;
+}
+
+.board-new-input {
+    height: 4rem;
+    border: none;
+    border-radius: 0.3rem;
+    background-color: #4c94be;
+    width: 100%;
+    padding: 0 3rem 0 1rem;
+    color: #fff;
+}
+
+    .board-new-input:hover {
+        background-color: #66a4c8;
+    }
+
+.new-icon {
+    font-size: 1.5rem;
+    position: absolute;
+    top: 50%;
+    right: 0.8rem;
+    transform: translateY(-50%) ;
+    color: #fff;
+}
+
 .logo {
     flex: 1;
     font-family: "Courgette", cursive;
@@ -395,4 +423,8 @@ Remove or comment-out the code block below to see how the browser will fall-back
 
 .droptarget > li {
     background-color: #4c94be;
+}
+
+.board-card:focus,.board-card:hover {
+    border: 3px solid orange;
 }

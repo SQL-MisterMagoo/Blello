@@ -3,187 +3,263 @@
 <!-- Masthead -->
 <header class="masthead">
 
-    <div class="boards-menu">
+	<div class="boards-menu">
 
-        <button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>Boards</button>
+		<button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>Boards</button>
 
-        <div class="board-search">
-            <input type="search" class="board-search-input" aria-label="Board Search">
-            <i class="fas fa-search search-icon" aria-hidden="true"></i>
-        </div>
+		<div class="board-search">
+			<input type="search" class="board-search-input" aria-label="Board Search">
+			<i class="fas fa-search search-icon" aria-hidden="true"></i>
+		</div>
 
-    </div>
+	</div>
 
-    <div class="logo">
+	<div class="logo">
 
-        <h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Blello</h1>
+		<h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Blello</h1>
 
-    </div>
+	</div>
 
-    <div class="user-settings">
+	<div class="user-settings">
 
-        <button class="user-settings-btn btn" aria-label="Create">
-            <i class="fas fa-plus" aria-hidden="true"></i>
-        </button>
+		<button class="user-settings-btn btn" aria-label="Create">
+			<i class="fas fa-plus" aria-hidden="true"></i>
+		</button>
 
-        <button class="user-settings-btn btn" aria-label="Information">
-            <i class="fas fa-info-circle" aria-hidden="true"></i>
-        </button>
+		<button class="user-settings-btn btn" aria-label="Information">
+			<i class="fas fa-info-circle" aria-hidden="true"></i>
+		</button>
 
-        <button class="user-settings-btn btn" aria-label="Notifications">
-            <i class="fas fa-bell" aria-hidden="true"></i>
-        </button>
+		<button class="user-settings-btn btn" aria-label="Notifications">
+			<i class="fas fa-bell" aria-hidden="true"></i>
+		</button>
 
-        <button class="user-settings-btn btn" aria-label="User Settings">
-            <i class="fas fa-user-circle" aria-hidden="true"></i>
-        </button>
+		<button class="user-settings-btn btn" aria-label="User Settings">
+			<i class="fas fa-user-circle" aria-hidden="true"></i>
+		</button>
 
-    </div>
+	</div>
 
 </header>
 <!-- End of masthead -->
 <!-- Board info bar -->
 <section class="board-info-bar">
 
-    <div class="board-controls">
+	<div class="board-controls">
 
-        <button class="board-title btn">
-            <h2>Web Development</h2>
-        </button>
+		<button class="board-title btn">
+			<h2>Web Development</h2>
+		</button>
 
-        <button class="star-btn btn" aria-label="Star Board">
-            <i class="far fa-star" aria-hidden="true"></i>
-        </button>
+		<button class="star-btn btn" aria-label="Star Board">
+			<i class="far fa-star" aria-hidden="true"></i>
+		</button>
 
-        <button class="personal-btn btn">Personal</button>
+		<button class="personal-btn btn">Personal</button>
 
-        <button class="private-btn btn"><i class="fas fa-briefcase private-btn-icon" aria-hidden="true"></i>Private</button>
+		<button class="private-btn btn"><i class="fas fa-briefcase private-btn-icon" aria-hidden="true"></i>Private</button>
 
-    </div>
+	</div>
 
-    <button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
+	<button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
 
 </section>
 <!-- End of board info bar -->
 <!-- Lists container -->
 <section class="lists-container">
 
-    @for (int i = 0; i < boardTitles.Count; i++)
-    {
-        int board = i+1;
-        <div class="list">
+	@for (int i = 0; i < boardTitles.Count; i++)
+	{
+		int board = i + 1;
+		<div class="list">
 
-        <DropZone ActiveClass="droptarget" DataItem="board" OnDragDrop=@OnDropBoard OnDragEnter=@OnEnterBoard>
-            <DropContent>
-            <h3 class="list-title">@boardTitles[board-1]</h3>
-            </DropContent>
-        </DropZone>
+			<DropZone ActiveClass="droptarget" DataItem="board" OnDragDrop=@OnDropBoard OnDragEnter=@OnEnterBoard>
+				<DropContent>
+					<h3 class="list-title">@boardTitles[board - 1]</h3>
+				</DropContent>
+			</DropZone>
 
-            <ul class="list-items">
-                @foreach (var item in boardItems.Where(b => b.BoardId == board))
-                {
-                    <Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave><DragContent Context="dragctx"><li>@dragctx.Content</li></DragContent></Draggable>
-                }
-            </ul>
+			<ul class="list-items">
+				@foreach (var item in boardItems.Where(b => b.BoardId == board))
+				{
+					@if (item.Equals(EditItem))
+					{
+						<li class="board-new">
+							<textarea id="@item.ItemID" rows="10" class="board-new-input" bind="@EditChange" aria-label="Edit Card" tabindex="0" />
+						</li>
+					}
+					else
+					{
+						<Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave>
+							<DragContent Context="dragctx">
+								<li class="board-card" tabindex="1" onclick="@((e) => EditCard(e, item))" onkeypress="@((e) => EditCard(e, item))">@dragctx.Content</li>
+							</DragContent>
+						</Draggable>
+					}
+				}
+			</ul>
 
-            <button class="add-card-btn btn">Add a card</button>
+			@if (NewBoardItem == board)
+			{
+				<div class="board-new">
+					<input id="newcard" type="text" class="board-new-input" bind="@NewItem" placeholder="Add a card" aria-label="New Card" tabindex="1" />
+					<i class="fas fa-plus new-icon"></i>
+				</div>
+			}
+			else
+			{
+				<button class="add-card-btn btn" onclick="@(()=>AddNewItem(board))">Add a card</button>
+			}
 
-        </div>
-    }
+		</div>
+	}
 
 
 </section>
 <!-- End of lists container -->
+<Focus FocusElementId="@FocusElementId" FocusChildId="@FocusChildId" />
 
 @functions
 {
-    void OnDragStart(UIDragEventArgs args, BoardItem Data)
-    {
-        Console.WriteLine($"Start {Data.Content} ");
-        DragItem = Data;
-        DragBoard = Data.BoardId;
-        DragIndex = boardItems.IndexOf(DragItem);
-        StateHasChanged();
-    }
+		void EditCard(UIEventArgs args, BoardItem item)
+		{
+			switch (args)
+			{
+				case UIMouseEventArgs e:
+					EditItem = item;
+					FocusElementId = item.ItemID;
+					break;
+				case UIKeyboardEventArgs k:
+					if (k.Key == "Enter" || k.Key == "Space")
+					{
+						EditItem = item;
+						FocusElementId = item.ItemID;
+					}
+					break;
+			}
+		}
+		string NewItem
+		{
+			get => "";
+			set
+			{
+				var newItem = new BoardItem() { BoardId = NewBoardItem, Content = value };
+				boardItems.Add(newItem);
+				NewBoardItem = 0;
+				FocusChildId = newItem.ItemID;
+				FocusElementId = "";
+			}
+		}
 
-    void OnDragEnter(UIDragEventArgs args, BoardItem Data)
-    {
-        Console.WriteLine($"Enter {Data.Content} ");
-        if (Data.Equals(DragItem))
-        {
-            return;
-        }
-        TargetItem = Data;
-        int dragIndex = boardItems.IndexOf(DragItem);
-        int targetIndex = boardItems.IndexOf(TargetItem);
-        boardItems.Remove(DragItem);
-        if (TargetItem.BoardId == DragItem.BoardId)
-        {
-            boardItems.Insert(targetIndex, DragItem);
-        }
-        else
-        {
-            boardItems.Insert(Math.Max(0,targetIndex - 1), DragItem);
-        }
-        DragItem.BoardId = TargetItem.BoardId;
-        StateHasChanged();
-    }
+		string EditChange
+		{
+			get => EditItem.Content;
+			set
+			{
+				EditItem.Content = value;
+				FocusChildId = EditItem.ItemID;
+				FocusElementId = "";
+				EditItem = null;
+			}
+		}
 
-    void OnDragEnd(UIDragEventArgs args, BoardItem Data)
-    {
-        Console.WriteLine($"End {Data.Content} ");
-        DragItem = null;
-        StateHasChanged();
-    }
+		void AddNewItem(int board)
+		{
+			NewBoardItem = board;
+			FocusElementId = "newcard";
+			FocusChildId = "";
+		}
+		void OnDragStart(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Start {Data.Content} ");
+			DragItem = Data;
+			DragBoard = Data.BoardId;
+			DragIndex = boardItems.IndexOf(DragItem);
+			StateHasChanged();
+		}
 
-    void OnDragLeave(UIDragEventArgs args, BoardItem Data)
-    {
-        Console.WriteLine($"Leave {Data.Content} ");
-        StateHasChanged();
-    }
+		void OnDragEnter(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Enter {Data.Content} ");
+			if (Data.Equals(DragItem))
+			{
+				return;
+			}
+			TargetItem = Data;
+			int dragIndex = boardItems.IndexOf(DragItem);
+			int targetIndex = boardItems.IndexOf(TargetItem);
+			boardItems.Remove(DragItem);
+			if (TargetItem.BoardId == DragItem.BoardId)
+			{
+				boardItems.Insert(targetIndex, DragItem);
+			}
+			else
+			{
+				boardItems.Insert(Math.Max(0, targetIndex - 1), DragItem);
+			}
+			DragItem.BoardId = TargetItem.BoardId;
+			StateHasChanged();
+		}
 
-    void OnDropItem(UIDragEventArgs args, BoardItem Data)
-    {
-        Console.WriteLine($"Drop {Data.Content}");
-        DragItem = null;
-        TargetItem = null;
-        StateHasChanged();
-    }
+		void OnDragEnd(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"End {Data.Content} ");
+			DragItem = null;
+			StateHasChanged();
+		}
 
-    void OnEnterBoard(UIDragEventArgs args, object Data)
-    {
-        Console.WriteLine($"Enter Board #{Data} ");
-        if (int.TryParse(Data.ToString(), out int board))
-        {
-            DragItem.BoardId = board;
-        }
-        StateHasChanged();
-    }
+		void OnDragLeave(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Leave {Data.Content} ");
+			StateHasChanged();
+		}
 
-    void OnDropBoard(UIDragEventArgs args, object Data)
-    {
-        Console.WriteLine($"Drop Board #{Data}");
-        if (int.TryParse(Data.ToString(), out int board))
-        {
-            DragItem.BoardId = board;
-        }
-        DragItem = null;
-        TargetItem = null;
-        StateHasChanged();
-    }
+		void OnDropItem(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Drop {Data.Content}");
+			DragItem = null;
+			TargetItem = null;
+			StateHasChanged();
+		}
 
-    int DragIndex;
-    int DragBoard;
-    BoardItem DragItem;
-    BoardItem TargetItem;
-    List<string> boardTitles;
-    List<BoardItem> boardItems;
-    protected override void OnInit()
-    {
-        base.OnInit();
-        boardTitles = BoardItem.SampleDataHeaders();
-        boardItems = BoardItem.SampleData();
+		void OnEnterBoard(UIDragEventArgs args, object Data)
+		{
+			Console.WriteLine($"Enter Board #{Data} ");
+			if (int.TryParse(Data.ToString(), out int board))
+			{
+				DragItem.BoardId = board;
+			}
+			StateHasChanged();
+		}
 
-    }
-    //
+		void OnDropBoard(UIDragEventArgs args, object Data)
+		{
+			Console.WriteLine($"Drop Board #{Data}");
+			if (int.TryParse(Data.ToString(), out int board))
+			{
+				DragItem.BoardId = board;
+			}
+			DragItem = null;
+			TargetItem = null;
+			StateHasChanged();
+		}
+
+		int DragIndex;
+		int DragBoard;
+		int NewBoardItem;
+		string FocusElementId;
+		string FocusChildId;
+		BoardItem EditItem;
+		BoardItem DragItem;
+		BoardItem TargetItem;
+		List<string> boardTitles;
+		List<BoardItem> boardItems;
+		protected override void OnInit()
+		{
+			base.OnInit();
+			boardTitles = BoardItem.SampleDataHeaders();
+			boardItems = BoardItem.SampleData();
+
+		}
+		//
 }
