@@ -131,14 +131,26 @@ app {
 }
 
 .board-edit {
+    display: flex;
+    flex-direction: row;
     flex-basis: 18rem;
     position: relative;
     height: auto !important;
 }
 
+    .board-edit > aside {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .board-edit > aside > i {
+            padding-bottom: 1rem;
+        }
+
 .board-edit-input {
-    width: 100%;
-    padding-right: 3em;
+    width: auto;
+    flex: 1;
+    margin-right: 1rem;
 }
 
 .new-icon {
@@ -146,7 +158,7 @@ app {
     position: absolute;
     top: 50%;
     right: 0.8rem;
-    transform: translateY(-50%) ;
+    transform: translateY(-50%);
     color: #fff;
 }
 
@@ -428,11 +440,11 @@ Remove or comment-out the code block below to see how the browser will fall-back
     background-color: #4c94be;
 }
 
-.board-card:focus,.board-card:hover {
+.board-card:focus, .board-card:hover {
     box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
 }
 
 .board-card.highlight {
-    font-weight:700;
+    font-weight: 700;
     background-color: cornflowerblue;
 }
