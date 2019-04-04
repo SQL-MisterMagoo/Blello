@@ -16,16 +16,16 @@ namespace Blello.Components.Helpers
                 return;
             }
             builder.OpenElement(0, "img");
-            builder.AddAttribute(1, "src", $"/{Guid.NewGuid()}");
+            builder.AddAttribute(1, "src", $"//:0/{Guid.NewGuid()}");
             if (!string.IsNullOrWhiteSpace(FocusElementId))
             {
-                builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusElementId}').focus()");
+                builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusElementId}').focus();event.preventDefault();");
             }
             else
             {
-                builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusChildId}').querySelector('[tabindex]').focus()");
+                builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusChildId}').querySelector('[tabindex]').focus();event.preventDefault();");
             }
-            builder.AddAttribute(3, "style", "display:none;");
+            builder.AddAttribute(3, "hidden", "hidden");
             builder.CloseElement();
             FocusElementId = "";
         }

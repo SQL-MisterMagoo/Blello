@@ -59,6 +59,7 @@ namespace Blello.Model
                 new BoardItem() { BoardId=3,Content="HTML Form Validation" },
                 new BoardItem() { BoardId=3,Content="HTML Structured Data" },
                 new BoardItem() { BoardId=3,Content="Advanced CSS Selectors" },
+                /*
                 new BoardItem() { BoardId=3,Content="CSS Transforms" },
                 new BoardItem() { BoardId=3,Content="CSS Animations" },
                 new BoardItem() { BoardId=3,Content="CSS Flexbox" },
@@ -178,6 +179,7 @@ namespace Blello.Model
                 new BoardItem() { BoardId=9,Content="Tip Calculator" },
                 new BoardItem() { BoardId=9,Content="To-Do List" },
                 new BoardItem() { BoardId=9,Content="Unit Converter" },
+                */
               };
         }
     }

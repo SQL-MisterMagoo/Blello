@@ -22,20 +22,16 @@
 
 	<div class="user-settings">
 
-		<button class="user-settings-btn btn" aria-label="Create">
-			<i class="fas fa-plus" aria-hidden="true"></i>
+		<a id="download" href="@BlobUrl" download="blello.json" style="display:none;" />
+		<button class="user-settings-btn btn" aria-label="Save" onclick="@FileDownload">
+			<i class="fas fa-download" aria-hidden="true"></i>
 		</button>
 
-		<button class="user-settings-btn btn" aria-label="Information">
-			<i class="fas fa-info-circle" aria-hidden="true"></i>
-		</button>
-
-		<button class="user-settings-btn btn" aria-label="Notifications">
-			<i class="fas fa-bell" aria-hidden="true"></i>
-		</button>
-
-		<button class="user-settings-btn btn" aria-label="User Settings">
-			<i class="fas fa-user-circle" aria-hidden="true"></i>
+		<input id="fileinput" type="file" hidden="hidden" onchange="window.filename.value = this.value; window.filename.dispatchEvent(new Event('change'));var reader = new FileReader(); reader.addEventListener('load', function () { var el = document.querySelector('#filedata'); el.value = this.result; el.dispatchEvent(new Event('change')); }, false); reader.readAsText(this.files[0]);" />
+		<input id="filedata" hidden="hidden" bind=@FileUpload />
+		<input id="filename" hidden="hidden" bind=@FileName />
+		<button class="user-settings-btn btn" aria-label="Load" onclick="@FileUploader">
+			<i class="fas fa-file-upload" aria-hidden="true"></i>
 		</button>
 
 	</div>
@@ -54,12 +50,12 @@
 		<button class="star-btn btn" aria-label="Star Board">
 			<i class="far fa-star" aria-hidden="true"></i>
 		</button>
-
 		<button class="personal-btn btn">Personal</button>
 
 		<button class="private-btn btn"><i class="fas fa-briefcase private-btn-icon" aria-hidden="true"></i>Private</button>
 
 	</div>
+	<div class="logo"><h2>(@System.IO.Path.GetFileName(FileName))</h2></div>
 
 	<button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
 
@@ -122,6 +118,61 @@
 
 @functions
 {
+		[Inject] IJSRuntime jSRuntime { get; set; }
+		[Inject] Microsoft.AspNetCore.Components.Services.IUriHelper UriHelper { get; set; }
+
+		string FileUpload
+		{
+			get => "";
+			set
+			{
+				try
+				{
+					var data = Json.Deserialize<List<BoardItem>>(value);
+					boardItems = data;
+					StateHasChanged();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex);
+				}
+			}
+		}
+		async Task FileUploader(UIMouseEventArgs args)
+		{
+			try
+			{
+				await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});fileinput.dispatchEvent(event);");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+		}
+		async Task FileDownload(UIMouseEventArgs args)
+		{
+			try
+			{
+				var blob = $"URL.createObjectURL(new Blob(['{SafeJsString(Json.Serialize(boardItems))}'],{{ \"type\": \"text/json\"}}))";
+				BlobUrl = await jSRuntime.InvokeAsync<string>("eval", blob);
+				await Invoke(StateHasChanged);
+				await Task.Delay(0);
+				await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});download.dispatchEvent(event);");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+		}
+
+		string SafeJsString(string content) =>
+				content
+				.Replace(@"\", @"\\")
+				.Replace("\r", @"\r")
+				.Replace("\n", @"\n")
+				.Replace("'", @"\'")
+				.Replace("\"", @"\""");
+
 		void BoardSearch(UIChangeEventArgs args)
 		{
 			SearchTerm = args.Value.ToString();
@@ -280,6 +331,8 @@
 		string FocusElementId;
 		string FocusChildId;
 		string SearchTerm;
+		string BlobUrl;
+		string FileName = "unnamed";
 		BoardItem EditItem;
 		BoardItem DragItem;
 		BoardItem TargetItem;
