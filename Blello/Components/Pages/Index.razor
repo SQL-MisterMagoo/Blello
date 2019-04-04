@@ -1,66 +1,7 @@
 ﻿@page "/"
 @using Blello.Model
-<!-- Masthead -->
-<header class="masthead">
-
-	<div class="boards-menu">
-
-		<button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>Boards</button>
-
-		<div class="board-search">
-			<input type="search" class="board-search-input" aria-label="Board Search" oninput="@BoardSearch" />
-			<i class="fas fa-search search-icon" aria-hidden="true"></i>
-		</div>
-
-	</div>
-
-	<div class="logo">
-
-		<h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Blello</h1>
-
-	</div>
-
-	<div class="user-settings">
-
-		<a id="download" href="@BlobUrl" download="blello.json" style="display:none;" />
-		<button class="user-settings-btn btn" aria-label="Save" onclick="@FileDownload">
-			<i class="fas fa-download" aria-hidden="true"></i>
-		</button>
-
-		<input id="fileinput" type="file" hidden="hidden" onchange="window.filename.value = this.value; window.filename.dispatchEvent(new Event('change'));var reader = new FileReader(); reader.addEventListener('load', function () { var el = document.querySelector('#filedata'); el.value = this.result; el.dispatchEvent(new Event('change')); }, false); reader.readAsText(this.files[0]);" />
-		<input id="filedata" hidden="hidden" bind=@FileUpload />
-		<input id="filename" hidden="hidden" bind=@FileName />
-		<button class="user-settings-btn btn" aria-label="Load" onclick="@FileUploader">
-			<i class="fas fa-file-upload" aria-hidden="true"></i>
-		</button>
-
-	</div>
-
-</header>
-<!-- End of masthead -->
-<!-- Board info bar -->
-<section class="board-info-bar">
-
-	<div class="board-controls">
-
-		<button class="board-title btn">
-			<h2>Web Development</h2>
-		</button>
-
-		<button class="star-btn btn" aria-label="Star Board">
-			<i class="far fa-star" aria-hidden="true"></i>
-		</button>
-		<button class="personal-btn btn">Personal</button>
-
-		<button class="private-btn btn"><i class="fas fa-briefcase private-btn-icon" aria-hidden="true"></i>Private</button>
-
-	</div>
-	<div class="logo"><h2>(@System.IO.Path.GetFileName(FileName))</h2></div>
-
-	<button class="menu-btn btn"><i class="fas fa-ellipsis-h menu-btn-icon" aria-hidden="true"></i>Show Menu</button>
-
-</section>
-<!-- End of board info bar -->
+<MastHead DataItems="@boardItems" DataLoaded="@OnFileUpload" Searched="@BoardSearch" />
+<BoardInfoBar FileName="@FileName" />
 <!-- Lists container -->
 <section class="lists-container" onkeypress="@SelectBoard">
 
@@ -114,50 +55,20 @@
 
 </section>
 <!-- End of lists container -->
-<Focus FocusElementId="@FocusElementId" FocusChildId="@FocusChildId" />
+<Focus FocusElementId="@FocusElementId" FocusChildId="@FocusElementId" />
 
 @functions
 {
 		[Inject] IJSRuntime jSRuntime { get; set; }
 		[Inject] Microsoft.AspNetCore.Components.Services.IUriHelper UriHelper { get; set; }
 
-		string FileUpload
-		{
-			get => "";
-			set
-			{
-				try
-				{
-					var data = Json.Deserialize<List<BoardItem>>(value);
-					boardItems = data;
-					StateHasChanged();
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex);
-				}
-			}
-		}
-		async Task FileUploader(UIMouseEventArgs args)
+		void OnFileUpload(string name, IEnumerable<BoardItem> value)
 		{
 			try
 			{
-				await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});fileinput.dispatchEvent(event);");
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex);
-			}
-		}
-		async Task FileDownload(UIMouseEventArgs args)
-		{
-			try
-			{
-				var blob = $"URL.createObjectURL(new Blob(['{SafeJsString(Json.Serialize(boardItems))}'],{{ \"type\": \"text/json\"}}))";
-				BlobUrl = await jSRuntime.InvokeAsync<string>("eval", blob);
-				await Invoke(StateHasChanged);
-				await Task.Delay(0);
-				await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});download.dispatchEvent(event);");
+				boardItems = value.ToList();
+				FileName = name;
+				StateHasChanged();
 			}
 			catch (Exception ex)
 			{
@@ -165,17 +76,10 @@
 			}
 		}
 
-		string SafeJsString(string content) =>
-				content
-				.Replace(@"\", @"\\")
-				.Replace("\r", @"\r")
-				.Replace("\n", @"\n")
-				.Replace("'", @"\'")
-				.Replace("\"", @"\""");
-
-		void BoardSearch(UIChangeEventArgs args)
+		void BoardSearch(string value)
 		{
-			SearchTerm = args.Value.ToString();
+			SearchTerm = value;
+			StateHasChanged();
 		}
 		void SelectBoard(UIKeyboardEventArgs args)
 		{
