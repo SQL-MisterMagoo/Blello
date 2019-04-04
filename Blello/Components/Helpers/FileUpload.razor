@@ -1,0 +1,34 @@
+﻿<input id="fu-fileinput" type="file" hidden onchange=@FileInputJS />
+<input id="fu-filedata" hidden bind=@FileUpload />
+<input id="fu-filename" hidden bind=@FileName />
+<img src="@ImgSrc" onerror="@ImgScript" hidden />
+@functions
+{
+		[Inject] IJSRuntime jSRuntime { get; set; }
+		[Parameter] protected EventCallback<string> FileUpload { get; set; }
+		[Parameter] protected EventCallback<string> FileName { get; set; }
+		public async Task TriggerUpload()
+		{
+			try
+			{
+				await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});fileinput.dispatchEvent(event);");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+
+		}
+		string ImgSrc;
+		string ImgScript;
+		string FileInputJS = "const fdata = this.nextElementSibling;" +
+						"const fname = fdata.nextElementSibling;" +
+						"fname.value = this.value;" +
+						"fname.dispatchEvent(new Event('change'));" +
+						"var reader = new FileReader(); " +
+						"reader.addEventListener('load', function () { " +
+						" fdata.value = this.result; " +
+						" fdata.dispatchEvent(new Event('change')); " +
+						"}, false); " +
+						"reader.readAsText(this.files[0]);";
+}
