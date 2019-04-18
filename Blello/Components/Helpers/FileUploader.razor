@@ -1,6 +1,6 @@
 ﻿@if (!string.IsNullOrWhiteSpace(ImgSrc))
 {
-<img src="@ImgSrc" onerror="@ImgScript" hidden />
+<img src="@ImgSrc" onerror="@ImgScript" onloadstart="@ImgScript" hidden />
 }
 <input id="fu-fileinput" type="file" hidden onchange=@FileInputJS />
 <input id="fu-filedata" hidden bind=@FileUpload />

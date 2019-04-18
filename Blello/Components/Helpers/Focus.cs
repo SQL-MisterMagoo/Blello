@@ -20,12 +20,14 @@ namespace Blello.Components.Helpers
             if (!string.IsNullOrWhiteSpace(FocusElementId))
             {
                 builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusElementId}').focus();event.preventDefault();");
+                builder.AddAttribute(3, "onloadstart", $"document.getElementById('{FocusElementId}').focus();event.preventDefault();");
             }
             else
             {
                 builder.AddAttribute(2, "onerror", $"document.getElementById('{FocusChildId}').querySelector('[tabindex]').focus();event.preventDefault();");
+                builder.AddAttribute(3, "onloadstart", $"document.getElementById('{FocusChildId}').querySelector('[tabindex]').focus();event.preventDefault();");
             }
-            builder.AddAttribute(3, "hidden", "hidden");
+            builder.AddAttribute(5, "hidden", "hidden");
             builder.CloseElement();
             FocusElementId = "";
         }

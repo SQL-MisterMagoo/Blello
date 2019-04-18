@@ -64,201 +64,201 @@
 
 @functions
 {
-	[Inject] IJSRuntime jSRuntime { get; set; }
-	[Inject] Microsoft.AspNetCore.Components.Services.IUriHelper UriHelper { get; set; }
+		[Inject] IJSRuntime jSRuntime { get; set; }
+		[Inject] Microsoft.AspNetCore.Components.Services.IUriHelper UriHelper { get; set; }
 
-	void OnFileUpload(string name, IEnumerable<BoardItem> value)
-	{
-		try
+		void OnFileUpload(string name, IEnumerable<BoardItem> value)
 		{
-			boardItems = value.ToList();
-			FileName = name;
+			try
+			{
+				boardItems = value.ToList();
+				FileName = name;
+				StateHasChanged();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+		}
+
+		void BoardSearch(string value)
+		{
+			SearchTerm = value;
 			StateHasChanged();
 		}
-		catch (Exception ex)
+		void SelectBoard(UIKeyboardEventArgs args)
 		{
-			Console.WriteLine(ex);
-		}
-	}
-
-	void BoardSearch(string value)
-	{
-		SearchTerm = value;
-		StateHasChanged();
-	}
-	void SelectBoard(UIKeyboardEventArgs args)
-	{
-		if (!(EditItem is null) || !(DragItem is null))
-		{
-			return;
-		}
-		if (int.TryParse(args.Key, out int board) && board <= boardTitles.Count)
-		{
-			var item = boardItems.First(b => b.BoardId == board);
-			if (!(item is null))
+			if (!(EditItem is null) || !(DragItem is null))
 			{
-				FocusChildId = item.ItemID;
+				return;
+			}
+			if (int.TryParse(args.Key, out int board) && board <= boardTitles.Count)
+			{
+				var item = boardItems.First(b => b.BoardId == board);
+				if (!(item is null))
+				{
+					FocusChildId = item.ItemID;
+					FocusElementId = "";
+				}
+			}
+		}
+		void EditCard(UIEventArgs args, BoardItem item)
+		{
+			switch (args)
+			{
+				case UIMouseEventArgs e:
+					EditItem = item;
+					FocusElementId = item.ItemID;
+					break;
+				case UIKeyboardEventArgs k:
+					if (k.Key == "Enter" || k.Key == "Space")
+					{
+						EditItem = item;
+						FocusElementId = item.ItemID;
+					}
+					break;
+			}
+		}
+		string NewItem
+		{
+			get => "";
+			set
+			{
+				var newItem = new BoardItem() { BoardId = NewBoardItem, Content = value };
+				boardItems.Add(newItem);
+				NewBoardItem = 0;
+				FocusChildId = newItem.ItemID;
 				FocusElementId = "";
 			}
 		}
-	}
-	void EditCard(UIEventArgs args, BoardItem item)
-	{
-		switch (args)
-		{
-			case UIMouseEventArgs e:
-				EditItem = item;
-				FocusElementId = item.ItemID;
-				break;
-			case UIKeyboardEventArgs k:
-				if (k.Key == "Enter" || k.Key == "Space")
-				{
-					EditItem = item;
-					FocusElementId = item.ItemID;
-				}
-				break;
-		}
-	}
-	string NewItem
-	{
-		get => "";
-		set
-		{
-			var newItem = new BoardItem() { BoardId = NewBoardItem, Content = value };
-			boardItems.Add(newItem);
-			NewBoardItem = 0;
-			FocusChildId = newItem.ItemID;
-			FocusElementId = "";
-		}
-	}
 
-	string EditChange
-	{
-		get => EditItem.Content;
-		set
+		string EditChange
 		{
-			EditItem.Content = value;
-			FocusChildId = EditItem.ItemID;
-			FocusElementId = "";
+			get => EditItem.Content;
+			set
+			{
+				EditItem.Content = value;
+				FocusChildId = EditItem.ItemID;
+				FocusElementId = "";
+				EditItem = null;
+			}
+		}
+
+		void EditAbort(UIFocusEventArgs args, BoardItem item)
+		{
 			EditItem = null;
+			FocusChildId = item.ItemID;
+			FocusElementId = "";
 		}
-	}
 
-	void EditAbort(UIFocusEventArgs args, BoardItem item)
-	{
-		EditItem = null;
-		FocusChildId = item.ItemID;
-		FocusElementId = "";
-	}
-
-	void AddNewItem(int board)
-	{
-		NewBoardItem = board;
-		FocusElementId = "newcard";
-		FocusChildId = "";
-	}
-
-	void NewItemAbort(UIFocusEventArgs args)
-	{
-		NewBoardItem = 0;
-	}
-
-	void OnDragStart(UIDragEventArgs args, BoardItem Data)
-	{
-		Console.WriteLine($"Start {Data.Content} ");
-		DragItem = Data;
-		DragBoard = Data.BoardId;
-		DragIndex = boardItems.IndexOf(DragItem);
-		StateHasChanged();
-	}
-
-	void OnDragEnter(UIDragEventArgs args, BoardItem Data)
-	{
-		Console.WriteLine($"Enter {Data.Content} ");
-		if (Data.Equals(DragItem))
+		void AddNewItem(int board)
 		{
-			return;
+			NewBoardItem = board;
+			FocusElementId = "newcard";
+			FocusChildId = "";
 		}
-		TargetItem = Data;
-		int dragIndex = boardItems.IndexOf(DragItem);
-		int targetIndex = boardItems.IndexOf(TargetItem);
-		boardItems.Remove(DragItem);
-		if (TargetItem.BoardId == DragItem.BoardId)
+
+		void NewItemAbort(UIFocusEventArgs args)
 		{
-			boardItems.Insert(targetIndex, DragItem);
+			NewBoardItem = 0;
 		}
-		else
+
+		void OnDragStart(UIDragEventArgs args, BoardItem Data)
 		{
-			boardItems.Insert(Math.Max(0, targetIndex - 1), DragItem);
+			Console.WriteLine($"Start {Data.Content} ");
+			DragItem = Data;
+			DragBoard = Data.BoardId;
+			DragIndex = boardItems.IndexOf(DragItem);
+			StateHasChanged();
 		}
-		DragItem.BoardId = TargetItem.BoardId;
-		FocusChildId = DragItem.ItemID;
-		FocusElementId = "";
-		StateHasChanged();
-	}
 
-	void OnDragEnd(UIDragEventArgs args, BoardItem Data)
-	{
-		Console.WriteLine($"End {Data.Content} ");
-		DragItem = null;
-		StateHasChanged();
-	}
-
-	void OnDragLeave(UIDragEventArgs args, BoardItem Data)
-	{
-		Console.WriteLine($"Leave {Data.Content} ");
-		StateHasChanged();
-	}
-
-	void OnDropItem(UIDragEventArgs args, BoardItem Data)
-	{
-		Console.WriteLine($"Drop {Data.Content}");
-		DragItem = null;
-		TargetItem = null;
-		StateHasChanged();
-	}
-
-	void OnEnterBoard(UIDragEventArgs args, object Data)
-	{
-		Console.WriteLine($"Enter Board #{Data} ");
-		if (int.TryParse(Data.ToString(), out int board))
+		void OnDragEnter(UIDragEventArgs args, BoardItem Data)
 		{
-			DragItem.BoardId = board;
+			Console.WriteLine($"Enter {Data.Content} ");
+			if (Data.Equals(DragItem))
+			{
+				return;
+			}
+			TargetItem = Data;
+			int dragIndex = boardItems.IndexOf(DragItem);
+			int targetIndex = boardItems.IndexOf(TargetItem);
+			boardItems.Remove(DragItem);
+			if (TargetItem.BoardId == DragItem.BoardId)
+			{
+				boardItems.Insert(targetIndex, DragItem);
+			}
+			else
+			{
+				boardItems.Insert(Math.Max(0, targetIndex - 1), DragItem);
+			}
+			DragItem.BoardId = TargetItem.BoardId;
+			FocusChildId = DragItem.ItemID;
+			FocusElementId = "";
+			StateHasChanged();
 		}
-		StateHasChanged();
-	}
 
-	void OnDropBoard(UIDragEventArgs args, object Data)
-	{
-		Console.WriteLine($"Drop Board #{Data}");
-		if (int.TryParse(Data.ToString(), out int board))
+		void OnDragEnd(UIDragEventArgs args, BoardItem Data)
 		{
-			DragItem.BoardId = board;
+			Console.WriteLine($"End {Data.Content} ");
+			DragItem = null;
+			StateHasChanged();
 		}
-		DragItem = null;
-		TargetItem = null;
-		StateHasChanged();
-	}
 
-	int DragIndex;
-	int DragBoard;
-	int NewBoardItem;
-	string FocusElementId;
-	string FocusChildId;
-	string SearchTerm;
-	string BlobUrl;
-	string FileName = "unnamed";
-	BoardItem EditItem;
-	BoardItem DragItem;
-	BoardItem TargetItem;
-	List<string> boardTitles;
-	List<BoardItem> boardItems;
-	protected override void OnInit()
-	{
-		base.OnInit();
-		boardTitles = BoardItem.SampleDataHeaders();
-		boardItems = BoardItem.SampleData();
+		void OnDragLeave(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Leave {Data.Content} ");
+			StateHasChanged();
+		}
 
-	}
-	//
+		void OnDropItem(UIDragEventArgs args, BoardItem Data)
+		{
+			Console.WriteLine($"Drop {Data.Content}");
+			DragItem = null;
+			TargetItem = null;
+			StateHasChanged();
+		}
+
+		void OnEnterBoard(UIDragEventArgs args, object Data)
+		{
+			Console.WriteLine($"Enter Board #{Data} ");
+			if (int.TryParse(Data.ToString(), out int board))
+			{
+				DragItem.BoardId = board;
+			}
+			StateHasChanged();
+		}
+
+		void OnDropBoard(UIDragEventArgs args, object Data)
+		{
+			Console.WriteLine($"Drop Board #{Data}");
+			if (int.TryParse(Data.ToString(), out int board))
+			{
+				DragItem.BoardId = board;
+			}
+			DragItem = null;
+			TargetItem = null;
+			StateHasChanged();
+		}
+
+		int DragIndex;
+		int DragBoard;
+		int NewBoardItem;
+		string FocusElementId;
+		string FocusChildId;
+		string SearchTerm;
+		string BlobUrl;
+		string FileName = "unnamed";
+		BoardItem EditItem;
+		BoardItem DragItem;
+		BoardItem TargetItem;
+		List<string> boardTitles;
+		List<BoardItem> boardItems;
+		protected override void OnInit()
+		{
+			base.OnInit();
+			boardTitles = BoardItem.SampleDataHeaders();
+			boardItems = new List<BoardItem>(); //BoardItem.SampleData();
+
+		}
+		//
 }
