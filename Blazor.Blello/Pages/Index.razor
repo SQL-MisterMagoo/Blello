@@ -1,16 +1,20 @@
 ﻿@page "/"
-@using Blello.Model
-<MastHead DataItems="@boardItems" DataLoaded="@OnFileUpload" Searched="@BoardSearch" />
+@using Blazor.Blello.Model
+@using Blazor.Blello.General
+@using Blazor.Blello.Helpers
+@using Blazor.Blello.DragAndDrop
+
+<MastHead DataItems="boardItems" DataLoaded="OnFileUpload" Searched="BoardSearch" />
 <BoardInfoBar FileName="@FileName" />
 <!-- Lists container -->
-<section class="lists-container" onkeypress="@SelectBoard">
+<section class="lists-container" @onkeypress="SelectBoard">
 
 	@for (int i = 0; i < boardTitles.Count; i++)
 	{
 		int board = i + 1;
 		<div class="list">
 
-			<DropZone ActiveClass="droptarget" DataItem="board" OnDragDrop=@OnDropBoard OnDragEnter=@OnEnterBoard>
+			<DropZone ActiveClass="droptarget" DataItem="board" OnDragDrop=OnDropBoard OnDragEnter=OnEnterBoard>
 				<DropContent>
 					<h3 class="list-title">@boardTitles[board - 1]</h3>
 				</DropContent>
@@ -23,7 +27,7 @@
 					@if (item.Equals(EditItem))
 					{
 						<li class="board-edit">
-							<textarea id="@item.ItemID" rows="10" class="board-edit-input"  bind="@EditChange" aria-label="Edit Card" tabindex="@board" />
+							<textarea id="@item.ItemID" rows="10" class="board-edit-input"  @bind="EditChange" aria-label="Edit Card" tabindex="@board" />
 							<aside>	
 								<i class="fas fa-trash-alt" tabindex="@board"></i>
 								<i class="fas fa-palette" tabindex="@board"></i>
@@ -33,9 +37,9 @@
 					}
 					else
 					{
-						<Draggable ID="@item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=@OnDragStart OnDragEnd=@OnDragEnd OnDragDrop=@OnDropItem OnDragEnter=@OnDragEnter OnDragLeave=@OnDragLeave>
+						<Draggable ID="item.ItemID" IsDragItem=@(item.Equals(DragItem)) DragItemClass="drag-item" DragType="move" DropType="move" DropTargetClass="droptarget" Debug="true" DataItem=@item OnDragStart=OnDragStart OnDragEnd=OnDragEnd OnDragDrop=OnDropItem OnDragEnter=OnDragEnter OnDragLeave=OnDragLeave>
 							<DragContent Context="dragctx">
-								<li class="board-card @((highlight ? "highlight" : ""))" tabindex="@board" onclick="@((e) => EditCard(e, item))" onkeypress="@((e) => EditCard(e, item))">@dragctx.Content</li>
+								<li class="board-card @((highlight ? "highlight" : ""))" tabindex="@board" @onclick="(e) => EditCard(e, item)" @onkeypress="(e) => EditCard(e, item)">@dragctx.Content</li>
 							</DragContent>
 						</Draggable>
 					}
@@ -45,13 +49,13 @@
 			@if (NewBoardItem == board)
 			{
 				<div class="board-new">
-					<input id="newcard" type="text" class="board-new-input" onblur="@NewItemAbort" bind="@NewItem" placeholder="Add a card" aria-label="New Card" tabindex="@board" />
+					<input id="newcard" type="text" class="board-new-input" @onblur="NewItemAbort" @bind="NewItem" placeholder="Add a card" aria-label="New Card" tabindex="@board" />
 					<i class="fas fa-plus new-icon"></i>
 				</div>
 			}
 			else
 			{
-				<button class="add-card-btn btn" onclick="@(()=>AddNewItem(board))" tabindex="@board">Add a card</button>
+				<button class="add-card-btn btn" @onclick="()=>AddNewItem(board)" tabindex="@board">Add a card</button>
 			}
 
 		</div>
@@ -60,12 +64,12 @@
 
 </section>
 <!-- End of lists container -->
-<Focus FocusElementId="@FocusElementId" FocusChildId="@FocusElementId" />
+<Focus FocusElementId="FocusElementId" FocusChildId="FocusElementId" />
 
 @functions
 {
 		[Inject] IJSRuntime jSRuntime { get; set; }
-		[Inject] Microsoft.AspNetCore.Components.IUriHelper UriHelper { get; set; }
+		[Inject] Microsoft.AspNetCore.Components.NavigationManager UriHelper { get; set; }
 
 		void OnFileUpload(string name, IEnumerable<BoardItem> value)
 		{
@@ -86,7 +90,7 @@
 			SearchTerm = value;
 			StateHasChanged();
 		}
-		void SelectBoard(UIKeyboardEventArgs args)
+		void SelectBoard(KeyboardEventArgs args)
 		{
 			if (!(EditItem is null) || !(DragItem is null))
 			{
@@ -102,15 +106,15 @@
 				}
 			}
 		}
-		void EditCard(UIEventArgs args, BoardItem item)
+		void EditCard(EventArgs args, BoardItem item)
 		{
 			switch (args)
 			{
-				case UIMouseEventArgs e:
+				case MouseEventArgs e:
 					EditItem = item;
 					FocusElementId = item.ItemID;
 					break;
-				case UIKeyboardEventArgs k:
+				case KeyboardEventArgs k:
 					if (k.Key == "Enter" || k.Key == "Space")
 					{
 						EditItem = item;
@@ -144,7 +148,7 @@
 			}
 		}
 
-		void EditAbort(UIFocusEventArgs args, BoardItem item)
+		void EditAbort(FocusEventArgs args, BoardItem item)
 		{
 			EditItem = null;
 			FocusChildId = item.ItemID;
@@ -158,12 +162,12 @@
 			FocusChildId = "";
 		}
 
-		void NewItemAbort(UIFocusEventArgs args)
+		void NewItemAbort(FocusEventArgs args)
 		{
 			NewBoardItem = 0;
 		}
 
-		void OnDragStart(UIDragEventArgs args, BoardItem Data)
+		void OnDragStart(DragEventArgs args, BoardItem Data)
 		{
 			Console.WriteLine($"Start {Data.Content} ");
 			DragItem = Data;
@@ -172,7 +176,7 @@
 			StateHasChanged();
 		}
 
-		void OnDragEnter(UIDragEventArgs args, BoardItem Data)
+		void OnDragEnter(DragEventArgs args, BoardItem Data)
 		{
 			Console.WriteLine($"Enter {Data.Content} ");
 			if (Data.Equals(DragItem))
@@ -197,20 +201,20 @@
 			StateHasChanged();
 		}
 
-		void OnDragEnd(UIDragEventArgs args, BoardItem Data)
+		void OnDragEnd(DragEventArgs args, BoardItem Data)
 		{
 			Console.WriteLine($"End {Data.Content} ");
 			DragItem = null;
 			StateHasChanged();
 		}
 
-		void OnDragLeave(UIDragEventArgs args, BoardItem Data)
+		void OnDragLeave(DragEventArgs args, BoardItem Data)
 		{
 			Console.WriteLine($"Leave {Data.Content} ");
 			StateHasChanged();
 		}
 
-		void OnDropItem(UIDragEventArgs args, BoardItem Data)
+		void OnDropItem(DragEventArgs args, BoardItem Data)
 		{
 			Console.WriteLine($"Drop {Data.Content}");
 			DragItem = null;
@@ -218,7 +222,7 @@
 			StateHasChanged();
 		}
 
-		void OnEnterBoard(UIDragEventArgs args, object Data)
+		void OnEnterBoard(DragEventArgs args, object Data)
 		{
 			Console.WriteLine($"Enter Board #{Data} ");
 			if (int.TryParse(Data.ToString(), out int board))
@@ -228,7 +232,7 @@
 			StateHasChanged();
 		}
 
-		void OnDropBoard(UIDragEventArgs args, object Data)
+		void OnDropBoard(DragEventArgs args, object Data)
 		{
 			Console.WriteLine($"Drop Board #{Data}");
 			if (int.TryParse(Data.ToString(), out int board))
@@ -253,9 +257,9 @@
 		BoardItem TargetItem;
 		List<string> boardTitles;
 		List<BoardItem> boardItems;
-		protected override void OnInit()
+		protected override void OnInitialized()
 		{
-			base.OnInit();
+			base.OnInitialized();
 			boardTitles = BoardItem.SampleDataHeaders();
 			boardItems = new List<BoardItem>(); //BoardItem.SampleData();
 
