@@ -1,0 +1,112 @@
+﻿@namespace Blazor.Blello.General
+@typeparam TData
+<!-- Masthead -->
+<header class="masthead">
+
+    <div class="boards-menu">
+
+        <button class="boards-btn btn"><i class="fab fa-trello boards-btn-icon"></i>Boards</button>
+
+        <div class="board-search">
+            <input type="search" class="board-search-input" aria-label="Board Search" @oninput="BoardSearch" />
+            <i class="fas fa-search search-icon" aria-hidden="true"></i>
+        </div>
+
+    </div>
+
+    <div class="logo">
+
+        <h1><i class="fab fa-trello logo-icon" aria-hidden="true"></i>Blello</h1>
+
+    </div>
+
+    <div class="user-settings">
+
+        <a id="download" href="@BlobUrl" download="@(FileName.Equals("unnamed") ? "blello.json" : System.IO.Path.GetFileName(FileName))" saveas="true" style="display:none;" />
+        <button class="user-settings-btn btn" aria-label="Save" @onclick="FileDownload">
+            <i class="fas fa-download" aria-hidden="true"></i>
+        </button>
+
+        <FileUploader FileName="@FileName" FileUploaded="OnFileUpload" @ref="Uploader" />
+        <button class="user-settings-btn btn" aria-label="Load" @onclick="DoFileUpload">
+            <i class="fas fa-file-upload" aria-hidden="true"></i>
+        </button>
+
+    </div>
+
+</header>
+<!-- End of masthead -->
+@functions
+{
+    [Parameter] public Action<string, IEnumerable<TData>> DataLoaded { get; set; }
+    [Parameter] public IEnumerable<TData> DataItems { get; set; }
+    [Parameter] public Action<string> Searched { get; set; }
+
+    [Inject] IJSRuntime jSRuntime { get; set; }
+
+    FileUploader Uploader;
+
+    string BlobUrl;
+    string FileName = "unnamed";
+
+    void OnFileUpload(string name, string value)
+    {
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<List<TData>>(value,
+                new System.Text.Json.JsonSerializerOptions()
+                {
+                    IgnoreReadOnlyProperties = false,
+                    PropertyNameCaseInsensitive = true,                    
+                }) ;
+            FileName = name;
+            DataLoaded?.Invoke(FileName, data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    void DoFileUpload(MouseEventArgs args)
+    {
+        try
+        {
+            Uploader.TriggerUpload();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    async Task FileDownload(MouseEventArgs args)
+    {
+        try
+        {
+            var blob = $"URL.createObjectURL(new Blob(['{SafeJsString(System.Text.Json.JsonSerializer.Serialize(DataItems))}'],{{ \"type\": \"text/json\"}}))";
+            BlobUrl = await jSRuntime.InvokeAsync<string>("eval", blob);
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(0);
+            await jSRuntime.InvokeAsync<object>("eval", "var event = new MouseEvent('click', {view: window, bubbles: true, cancelable: true});download.dispatchEvent(event);");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    string SafeJsString(string content) =>
+            content
+            .Replace(@"\", @"\\")
+            .Replace("\r", @"\r")
+            .Replace("\n", @"\n")
+            .Replace("'", @"\'")
+            .Replace("\"", @"\""");
+
+    void BoardSearch(ChangeEventArgs args)
+    {
+        Searched?.Invoke(args.Value.ToString());
+    }
+
+}
