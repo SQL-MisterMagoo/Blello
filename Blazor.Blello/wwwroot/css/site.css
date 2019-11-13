@@ -43,10 +43,6 @@ app {
     cursor: pointer;
 }
 
-:focus {
-    outline-color: #fa0;
-}
-
 /* Masthead */
 
 .masthead {
